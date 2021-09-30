@@ -1,5 +1,5 @@
 // Package LdapAuth a ldap authentication plugin.
-package ldapauth
+package ldapAuth
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-
 
 	"github.com/go-ldap/ldap/v3"
 )
@@ -31,25 +30,25 @@ type Config struct {
 // CreateConfig creates the default plugin configuration.
 func CreateConfig() *Config {
 	return &Config{
-		Enabled:        true,
-		Debug:          false,
-		Host:           "example.com",
-		Port:           389,
-		BaseDn:         "dc=example,dc=org",
-		UserUniqueId:   "uid", // Usually uid or sAMAccountname
+		Enabled:      true,
+		Debug:        false,
+		Host:         "example.com",
+		Port:         389,
+		BaseDn:       "dc=example,dc=org",
+		UserUniqueId: "uid", // Usually uid or sAMAccountname
 	}
 }
 
 // LdapAuth Struct plugin.
 type LdapAuth struct {
-	next     http.Handler
-	name     string
-	config   *Config
+	next   http.Handler
+	name   string
+	config *Config
 }
 
 // New created a new LdapAuth plugin.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
-	log.Println("Starting", name ,"Middleware...")
+	log.Println("Starting", name, "Middleware...")
 	if config.Debug {
 		log.Println("Enabled       =>", config.Enabled)
 		log.Println("Host          =>", config.Host)
@@ -66,17 +65,17 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 }
 
 func (la *LdapAuth) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	
+
 	if !la.config.Enabled {
 		log.Printf("%s Disabled! Passing request...", la.name)
 		la.next.ServeHTTP(rw, req)
 		return
 	}
-	
+
 	user, password, ok := req.BasicAuth()
 
 	if !ok {
-        // No valid 'Authentication: Basic xxxx' header found in request
+		// No valid 'Authentication: Basic xxxx' header found in request
 		la.RequireAuth(rw, req)
 		return
 	}
